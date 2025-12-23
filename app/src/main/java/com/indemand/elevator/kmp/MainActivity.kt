@@ -1,7 +1,6 @@
 package com.indemand.elevator.kmp
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -65,7 +64,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             ElevatorkmpTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Body(innerPadding, buttonsColumn)
+                    ElevatorScreen(innerPadding)
                 }
             }
         }
@@ -73,10 +72,10 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Body(
-    paddingValues: PaddingValues, buttons: List<List<Int>>
-) {
+fun ElevatorScreen(paddingValues: PaddingValues) {
     val elevators by elevatorUseCase.elevators.collectAsState()
+    val buttons by elevatorUseCase.buttons.collectAsState()
+
     Column {
         HeaderView(modifier = Modifier.padding(paddingValues))
         ElevatorStateView(elevators)
@@ -191,21 +190,9 @@ private fun Grid3x3Layout(
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-
-    var index = 1
-    val buttonsColumn = mutableListOf<List<Int>>()
-    repeat(3) {
-        val buttonsRow = mutableListOf<Int>()
-        repeat(3) {
-            buttonsRow.add(index)
-            index++
-        }
-        buttonsColumn.add(buttonsRow)
-    }
-
     ElevatorkmpTheme {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            Body(innerPadding, buttonsColumn)
+            ElevatorScreen(innerPadding)
         }
     }
 }
