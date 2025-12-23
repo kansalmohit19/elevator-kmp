@@ -1,0 +1,3 @@
+[submodule "submodules/elevator-common"]
+	path = submodules/elevator-common
+	url = git@github.com:kansalmohit19/elevator-kotlin.git
