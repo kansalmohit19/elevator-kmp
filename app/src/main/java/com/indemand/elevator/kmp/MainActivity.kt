@@ -45,21 +45,8 @@ val elevatorUseCase = ElevatorUseCase(CoroutineScope(Dispatchers.IO))
 
 class MainActivity : ComponentActivity() {
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        var index = 1
-        val buttonsColumn = mutableListOf<List<Int>>()
-        repeat(3) { columnIndex ->
-            val buttonsRow = mutableListOf<Int>()
-            repeat(3) { rowIndex ->
-                buttonsRow.add(index)
-                index++
-            }
-            buttonsColumn.add(buttonsRow)
-        }
-
         enableEdgeToEdge()
         setContent {
             ElevatorkmpTheme {
