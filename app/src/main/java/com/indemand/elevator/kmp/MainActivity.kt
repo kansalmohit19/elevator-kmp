@@ -62,6 +62,8 @@ class MainActivity : ComponentActivity() {
 fun ElevatorScreen(paddingValues: PaddingValues, elevatorUseCase: ElevatorUseCase) {
     val elevators by elevatorUseCase.elevators.collectAsState()
     val buttons by elevatorUseCase.buttons.collectAsState()
+    val queueCount by elevatorUseCase.queue.collectAsState()
+
     val appColors = LocalAppColors.current
     Column(
         modifier = Modifier
@@ -70,6 +72,7 @@ fun ElevatorScreen(paddingValues: PaddingValues, elevatorUseCase: ElevatorUseCas
     ) {
         HeaderView(modifier = Modifier.padding(paddingValues))
         ElevatorStateView(elevators)
+        QueueView(modifier = Modifier.padding(paddingValues), queueCount.size)
         ElevatorButtonView(buttons) { floor ->
             elevatorUseCase.handleInput(floor)
         }
@@ -140,13 +143,29 @@ fun ElevatorStateView(elevators: List<Elevator>) {
 }
 
 @Composable
+fun QueueView(modifier: Modifier = Modifier, count: Int) {
+    val appColors = LocalAppColors.current
+    Text(
+        text = "Queue: $count",
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 10.dp),
+        textAlign = TextAlign.Center,
+        style = MaterialTheme.typography.headlineSmall.copy(
+            fontWeight = FontWeight.Normal,
+            color = appColors.title
+        ),
+    )
+}
+
+@Composable
 fun ElevatorButtonView(
     buttons: List<List<Int>>, onButtonClick: (Int) -> Unit
 ) {
     val appColors = LocalAppColors.current
     Column(
         modifier = Modifier
-            .padding(top = 40.dp)
+            .padding(top = 20.dp)
             .fillMaxWidth()
     ) {
         buttons.forEach { row ->
@@ -202,8 +221,9 @@ fun SanityPreview() {
             ) {
                 HeaderView(modifier = Modifier.padding(paddingValues))
                 ElevatorStateView(elevators)
+                QueueView(modifier = Modifier.padding(paddingValues), 1)
                 ElevatorButtonView(buttons) { floor ->
-
+                    //no op
                 }
             }
         }
