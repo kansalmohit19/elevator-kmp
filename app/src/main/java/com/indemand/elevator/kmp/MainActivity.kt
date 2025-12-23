@@ -25,12 +25,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.indemand.elevator.kmp.ui.theme.ElevatorkmpTheme
+import com.indemand.elevator.kmp.ui.theme.LocalAppColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.example.Elevator
@@ -48,7 +49,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             ElevatorkmpTheme {
                 Scaffold(
-                    containerColor = MaterialTheme.colorScheme.background,
                     modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
                     ElevatorScreen(innerPadding, elevatorUseCase)
@@ -62,9 +62,11 @@ class MainActivity : ComponentActivity() {
 fun ElevatorScreen(paddingValues: PaddingValues, elevatorUseCase: ElevatorUseCase) {
     val elevators by elevatorUseCase.elevators.collectAsState()
     val buttons by elevatorUseCase.buttons.collectAsState()
-
+    val appColors = LocalAppColors.current
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = appColors.background)
     ) {
         HeaderView(modifier = Modifier.padding(paddingValues))
         ElevatorStateView(elevators)
@@ -77,52 +79,59 @@ fun ElevatorScreen(paddingValues: PaddingValues, elevatorUseCase: ElevatorUseCas
 
 @Composable
 fun HeaderView(modifier: Modifier = Modifier) {
+    val appColors = LocalAppColors.current
     Text(
         text = "Elevator Algorithm",
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp),
+            .padding(vertical = 30.dp),
         textAlign = TextAlign.Center,
-        style = MaterialTheme.typography.headlineSmall,
-        color = MaterialTheme.colorScheme.primary
+        style = MaterialTheme.typography.headlineSmall.copy(
+            fontWeight = FontWeight.Medium,
+            color = appColors.title,
+            textDecoration = TextDecoration.Underline
+        ),
     )
 }
 
 @Composable
 fun ElevatorStateView(elevators: List<Elevator>) {
+    val appColors = LocalAppColors.current
+
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)
     ) {
         elevators.forEach { elevator ->
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
                 Text(
                     text = elevator.displayName,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onBackground
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = appColors.elevatorLabelColor
                 )
 
                 Box(
                     modifier = Modifier
                         .padding(top = 8.dp)
-                        .size(90.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(MaterialTheme.colorScheme.surface),
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(appColors.elevatorBackground),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = elevator.level.toString() +
-                                if (elevator.isMoving)
-                                    if (elevator.isGoingUp) " ↑" else " ↓"
-                                else "",
+                        text = elevator.level.toString() + if (elevator.isMoving) if (elevator.isGoingUp) " ↑" else " ↓"
+                        else "",
                         style = MaterialTheme.typography.headlineMedium,
-                        color = if (elevator.isMoving)
-                            MaterialTheme.colorScheme.primary
-                        else
-                            MaterialTheme.colorScheme.onSurface
+                        fontWeight = FontWeight.Bold,
+                        color = when (elevator.isMoving) {
+                            false -> appColors.elevatorIdle
+                            else -> if (elevator.isGoingUp) {
+                                appColors.elevatorMovingUp
+                            } else {
+                                appColors.elevatorMovingDown
+                            }
+                        }
                     )
                 }
             }
@@ -132,33 +141,35 @@ fun ElevatorStateView(elevators: List<Elevator>) {
 
 @Composable
 fun ElevatorButtonView(
-    buttons: List<List<Int>>,
-    onButtonClick: (Int) -> Unit
+    buttons: List<List<Int>>, onButtonClick: (Int) -> Unit
 ) {
+    val appColors = LocalAppColors.current
     Column(
-        verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier
             .padding(top = 40.dp)
             .fillMaxWidth()
     ) {
         buttons.forEach { row ->
             Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
-                modifier = Modifier.fillMaxWidth()
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 row.forEach { item ->
                     Box(
                         modifier = Modifier
-                            .size(48.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surface)
-                            .clickable { onButtonClick(item) },
-                        contentAlignment = Alignment.Center
+                            .padding(top = 8.dp)
+                            .size(60.dp)
+                            //.clip(RoundedCornerShape(12.dp))
+                            .background(appColors.buttonDefault)
+                            .clickable {
+                                onButtonClick(item)
+                            }, contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = item.toString(),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Medium,
+                            color = appColors.buttonTextColor
                         )
                     }
                 }
@@ -170,5 +181,31 @@ fun ElevatorButtonView(
 @Preview(showBackground = true)
 @Composable
 fun SanityPreview() {
+    val elevators = listOf(
+        Elevator(1, "A", level = 2),
+        Elevator(2, "B", level = 5),
+        Elevator(3, "C", level = 1),
+        Elevator(4, "D", level = 1),
+    )
 
+    val buttons = listOf(
+        listOf(1, 2, 3), listOf(4, 5, 6), listOf(7, 8, 9)
+    )
+
+    ElevatorkmpTheme {
+        val appColors = LocalAppColors.current
+        Scaffold(
+            containerColor = appColors.background, modifier = Modifier.fillMaxSize()
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                HeaderView(modifier = Modifier.padding(paddingValues))
+                ElevatorStateView(elevators)
+                ElevatorButtonView(buttons) { floor ->
+
+                }
+            }
+        }
+    }
 }
