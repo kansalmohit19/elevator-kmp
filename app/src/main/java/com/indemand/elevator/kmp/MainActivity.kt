@@ -16,10 +16,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -41,9 +37,11 @@ import kotlinx.coroutines.Dispatchers
 import org.example.Elevator
 import org.example.ElevatorUseCase
 
-val elevatorUseCase = ElevatorUseCase(CoroutineScope(Dispatchers.IO))
-
 class MainActivity : ComponentActivity() {
+
+    val elevatorUseCase by lazy {
+        ElevatorUseCase(CoroutineScope(Dispatchers.IO), 4, 11)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +49,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             ElevatorkmpTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ElevatorScreen(innerPadding)
+                    ElevatorScreen(innerPadding, elevatorUseCase)
                 }
             }
         }
@@ -59,14 +57,16 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun ElevatorScreen(paddingValues: PaddingValues) {
+fun ElevatorScreen(paddingValues: PaddingValues, elevatorUseCase: ElevatorUseCase) {
     val elevators by elevatorUseCase.elevators.collectAsState()
     val buttons by elevatorUseCase.buttons.collectAsState()
 
-    Column {
+    Column(modifier = Modifier.background(Color.Black)) {
         HeaderView(modifier = Modifier.padding(paddingValues))
         ElevatorStateView(elevators)
-        ElevatorButtonView(buttons)
+        ElevatorButtonView(buttons) { floor ->
+            elevatorUseCase.handleInput(floor)
+        }
     }
 }
 
@@ -106,8 +106,8 @@ fun ElevatorStateView(elevators: List<Elevator>) {
                         .background(Color.LightGray), contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = elevator.level.toString(),
-                        fontSize = 24.sp,
+                        text = elevator.level.toString() + if (elevator.isMoving) if (elevator.isGoingUp) "↑" else "↓" else "",
+                        style = TextStyle(fontSize = 24.sp, color = Color.White),
                         textAlign = TextAlign.Center,
                     )
                 }
@@ -117,7 +117,9 @@ fun ElevatorStateView(elevators: List<Elevator>) {
 }
 
 @Composable
-fun ElevatorButtonView(buttons: List<List<Int>>) {
+fun ElevatorButtonView(
+    buttons: List<List<Int>>, onButtonClick: (Int) -> Unit
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(space = 6.dp),
         modifier = Modifier.padding(top = 50.dp)
@@ -131,9 +133,7 @@ fun ElevatorButtonView(buttons: List<List<Int>>) {
                 row.forEach { item ->
                     Box(
                         modifier = Modifier
-                            .clickable {
-                                elevatorUseCase.handleInput(item)
-                            }
+                            .clickable { onButtonClick(item) }
                             .size(40.dp)
                             .clip(RoundedCornerShape(10))
                             .background(Color.LightGray),
@@ -150,36 +150,8 @@ fun ElevatorButtonView(buttons: List<List<Int>>) {
     }
 }
 
-@Composable
-private fun Grid3x3Layout(
-    items: List<String>, modifier: Modifier = Modifier, itemContent: @Composable (String) -> Unit
-) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
-        modifier = Modifier.wrapContentWidth(),
-        horizontalArrangement = Arrangement.Center,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(items.size) { index ->
-            Box(
-                modifier = Modifier
-                    .size(50.dp)
-                    .clip(CircleShape)
-                    .background(Color.LightGray),
-                contentAlignment = Alignment.Center
-            ) {
-                itemContent(items[index])
-            }
-        }
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    ElevatorkmpTheme {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            ElevatorScreen(innerPadding)
-        }
-    }
+fun SanityPreview() {
+
 }
