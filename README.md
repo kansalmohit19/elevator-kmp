@@ -13,7 +13,11 @@ The core elevator logic is maintained in a separate repository, [`elevator-commo
 
 ---
 
-![Elevator Demo](videos/presentation.gif)
+## 📱 Demo
+
+<img src="videos/presentation.gif" alt="Elevator Demo" height="600">
+
+---
 
 ## 📱 Features
 
