@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.indemand.elevator.kmp.ui.theme.ElevatorkmpTheme
 import com.indemand.elevator.kmp.ui.theme.LocalAppColors
 import kotlinx.coroutines.CoroutineScope
@@ -72,7 +73,7 @@ fun ElevatorScreen(paddingValues: PaddingValues, elevatorUseCase: ElevatorUseCas
     ) {
         HeaderView(modifier = Modifier.padding(paddingValues))
         ElevatorStateView(elevators)
-        QueueView(modifier = Modifier.padding(paddingValues), queueCount.size)
+        QueueView(queueCount.size)
         ElevatorButtonView(buttons) { floor ->
             elevatorUseCase.handleInput(floor)
         }
@@ -84,7 +85,7 @@ fun ElevatorScreen(paddingValues: PaddingValues, elevatorUseCase: ElevatorUseCas
 fun HeaderView(modifier: Modifier = Modifier) {
     val appColors = LocalAppColors.current
     Text(
-        text = "Elevator Algorithm",
+        text = "Elevator System Simulation",
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 30.dp),
@@ -143,16 +144,17 @@ fun ElevatorStateView(elevators: List<Elevator>) {
 }
 
 @Composable
-fun QueueView(modifier: Modifier = Modifier, count: Int) {
+fun QueueView(count: Int) {
     val appColors = LocalAppColors.current
     Text(
-        text = "Queue: $count",
-        modifier = modifier
+        text = "Queue count: $count",
+        modifier = Modifier
             .fillMaxWidth()
             .padding(top = 10.dp),
         textAlign = TextAlign.Center,
-        style = MaterialTheme.typography.headlineSmall.copy(
+        style = MaterialTheme.typography.bodyLarge.copy(
             fontWeight = FontWeight.Normal,
+            fontSize = 20.sp,
             color = appColors.title
         ),
     )
@@ -221,7 +223,7 @@ fun SanityPreview() {
             ) {
                 HeaderView(modifier = Modifier.padding(paddingValues))
                 ElevatorStateView(elevators)
-                QueueView(modifier = Modifier.padding(paddingValues), 1)
+                QueueView(1)
                 ElevatorButtonView(buttons) { floor ->
                     //no op
                 }
