@@ -35,8 +35,8 @@ import com.indemand.elevator.kmp.ui.theme.ElevatorkmpTheme
 import com.indemand.elevator.kmp.ui.theme.LocalAppColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import org.example.Elevator
-import org.example.ElevatorUseCase
+import com.indemand.elevator.Elevator
+import com.indemand.elevator.ElevatorUseCase
 
 class MainActivity : ComponentActivity() {
 
